@@ -1,0 +1,65 @@
+{
+  "name": "@grandinharrison/mcp-server-ori",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for executing ORI (Optimize-Research-Implement) workflows with SME quality gates",
+  "type": "module",
+  "author": "Harrison Grandin",
+  "license": "MIT",
+  "homepage": "https://github.com/grandinh/mcp-server-ori#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grandinh/mcp-server-ori.git"
+  },
+  "bugs": {
+    "url": "https://github.com/grandinh/mcp-server-ori/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ori",
+    "workflow",
+    "ai",
+    "claude",
+    "optimization",
+    "research",
+    "implementation"
+  ],
+  "bin": {
+    "mcp-server-ori": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "resources"
+  ],
+  "scripts": {
+    "build": "tsc && shx chmod +x dist/*.js",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "dev": "tsc --watch & nodemon --watch dist dist/index.js",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "test": "jest",
+    "clean": "shx rm -rf dist"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.7.0",
+    "chokidar": "^4.0.0",
+    "semver": "^7.6.0",
+    "winston": "^3.17.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/semver": "^7.5.8",
+    "@typescript-eslint/eslint-plugin": "^8.18.1",
+    "@typescript-eslint/parser": "^8.18.1",
+    "eslint": "^9.17.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "shx": "^0.3.4",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,473 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/grandinh/mcp-prompt-optimizer/schemas/handoff-packet.json",
+  "title": "ORI Handoff Packet",
+  "description": "Structured context transfer schema for inter-phase communication in the ORI (Optimize Research Implement) multi-agent workflow",
+  "type": "object",
+  "required": ["schemaVersion", "trace_id", "workflow_id", "phase", "user_request"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "description": "Semantic version of this schema (major.minor.patch)",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "examples": ["1.0.0"]
+    },
+    "trace_id": {
+      "type": "string",
+      "description": "Unique identifier for this workflow execution (UUID v4 format)",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "examples": ["ori-20251108-a1b2c3d4-e5f6-4789-0abc-def123456789"]
+    },
+    "workflow_id": {
+      "type": "string",
+      "description": "Identifier for the workflow type (e.g., '/ori', '/optimize')",
+      "examples": ["/ori", "/optimize"]
+    },
+    "phase": {
+      "type": "object",
+      "description": "Current phase information and progression tracking",
+      "required": ["current", "next", "completed", "remaining"],
+      "properties": {
+        "current": {
+          "type": "integer",
+          "description": "Current phase number (0-4 for ORI)",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "next": {
+          "type": ["integer", "null"],
+          "description": "Next phase number or null if workflow complete",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "completed": {
+          "type": "array",
+          "description": "List of completed phase numbers",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4
+          }
+        },
+        "remaining": {
+          "type": "array",
+          "description": "List of remaining phase numbers",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4
+          }
+        }
+      }
+    },
+    "user_request": {
+      "type": "object",
+      "description": "Original user request and classification",
+      "required": ["original"],
+      "properties": {
+        "original": {
+          "type": "string",
+          "description": "Original user request text"
+        },
+        "parsed_intent": {
+          "type": "string",
+          "description": "AI's interpretation of the user's core intent"
+        },
+        "domain": {
+          "type": "string",
+          "description": "Primary domain classification (code, data, UX, writing, research, etc.)",
+          "enum": ["code", "data", "UX", "writing", "research", "finance", "product", "education", "legal", "personal", "other"]
+        },
+        "clarity_score": {
+          "type": "number",
+          "description": "Clarity score from OTA+OODA framework (0.0-1.0)",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "risk_flags": {
+          "type": "array",
+          "description": "Risk categories identified (security, privacy, compliance, etc.)",
+          "items": {
+            "type": "string",
+            "enum": ["security", "privacy", "compliance", "safety", "legal", "performance", "breaking_changes"]
+          }
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "description": "Accumulated context from all completed phases",
+      "properties": {
+        "research_strategy": {
+          "type": "object",
+          "description": "Phase 0 output: Research strategy and model recommendations",
+          "properties": {
+            "primary_questions": {
+              "type": "array",
+              "description": "Key questions to answer during research",
+              "items": { "type": "string" }
+            },
+            "sources": {
+              "type": "array",
+              "description": "Information sources to consult",
+              "items": { "type": "string" }
+            },
+            "search_queries": {
+              "type": "array",
+              "description": "Specific search queries to execute",
+              "items": { "type": "string" }
+            },
+            "validation_criteria": {
+              "type": "array",
+              "description": "Criteria for validating research findings",
+              "items": { "type": "string" }
+            },
+            "estimated_complexity": {
+              "type": "string",
+              "enum": ["low", "medium", "high"]
+            }
+          }
+        },
+        "findings": {
+          "type": "object",
+          "description": "Phase 1 output: Research findings and sources",
+          "properties": {
+            "key_findings": {
+              "type": "array",
+              "description": "Primary research findings",
+              "items": { "type": "string" }
+            },
+            "sources_consulted": {
+              "type": "array",
+              "description": "Sources consulted with URLs",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string", "enum": ["web", "docs", "code", "config"] },
+                  "url": { "type": "string" },
+                  "reliability": { "type": "string", "enum": ["high", "medium", "low"] }
+                }
+              }
+            },
+            "confidence": {
+              "type": "string",
+              "description": "Overall confidence in research findings",
+              "enum": ["high", "medium", "low"]
+            },
+            "risks": {
+              "type": "array",
+              "description": "Identified risks from research",
+              "items": { "type": "string" }
+            },
+            "implementation_approach": {
+              "type": "string",
+              "description": "Recommended approach for implementation"
+            }
+          }
+        },
+        "validation_results": {
+          "type": "object",
+          "description": "Phase 2 output: Verification and risk assessment",
+          "properties": {
+            "accuracy_score": {
+              "type": "number",
+              "description": "Accuracy validation score (0.0-1.0)",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "cross_validation_passed": {
+              "type": "boolean",
+              "description": "Whether cross-validation checks passed"
+            },
+            "inconsistencies": {
+              "type": "array",
+              "description": "Any inconsistencies found during validation",
+              "items": { "type": "string" }
+            },
+            "risk_level": {
+              "type": "string",
+              "enum": ["low", "medium", "high", "critical"]
+            },
+            "user_confirmation_required": {
+              "type": "boolean",
+              "description": "Whether user confirmation is needed before proceeding"
+            }
+          }
+        },
+        "implementation_log": {
+          "type": "object",
+          "description": "Phase 3 output: Implementation results and changes",
+          "properties": {
+            "files_modified": {
+              "type": "array",
+              "description": "List of files created or modified",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": { "type": "string" },
+                  "action": { "type": "string", "enum": ["created", "modified", "deleted"] },
+                  "lines_added": { "type": "integer" },
+                  "lines_deleted": { "type": "integer" }
+                }
+              }
+            },
+            "errors": {
+              "type": "array",
+              "description": "Any errors encountered during implementation",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string" },
+                  "message": { "type": "string" },
+                  "file": { "type": "string" },
+                  "resolved": { "type": "boolean" }
+                }
+              }
+            },
+            "rollback_available": {
+              "type": "boolean",
+              "description": "Whether rollback state is available"
+            }
+          }
+        },
+        "documentation_updates": {
+          "type": "object",
+          "description": "Phase 4 output: Documentation changes",
+          "properties": {
+            "files_updated": {
+              "type": "array",
+              "description": "Documentation files updated",
+              "items": { "type": "string" }
+            },
+            "version_bumped": {
+              "type": "boolean",
+              "description": "Whether version number was incremented"
+            },
+            "completeness_score": {
+              "type": "number",
+              "description": "Documentation completeness score (0.0-1.0)",
+              "minimum": 0.0,
+              "maximum": 1.0
+            }
+          }
+        }
+      }
+    },
+    "model_recommendations": {
+      "type": "object",
+      "description": "Phase 0 output: Model selection for each phase",
+      "properties": {
+        "phase_1": {
+          "type": "string",
+          "enum": ["opus", "sonnet", "haiku"]
+        },
+        "phase_2": {
+          "type": "string",
+          "enum": ["opus", "sonnet", "haiku"]
+        },
+        "phase_3": {
+          "type": "string",
+          "enum": ["opus", "sonnet", "haiku"]
+        },
+        "phase_4": {
+          "type": "string",
+          "enum": ["opus", "sonnet", "haiku"]
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Explanation for model selection"
+        }
+      }
+    },
+    "quality_metrics": {
+      "type": "object",
+      "description": "Aggregated quality and performance metrics",
+      "properties": {
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "sources_validated": {
+          "type": "integer",
+          "description": "Number of sources validated",
+          "minimum": 0
+        },
+        "risk_level": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "complexity_score": {
+          "type": "number",
+          "description": "Estimated task complexity (0.0-1.0)",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "description": "User-specified constraints and requirements",
+      "items": { "type": "string" },
+      "examples": [["use Express.js", "OWASP compliance required", "no TypeScript"]]
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "description": "Success criteria for the implementation",
+      "items": { "type": "string" },
+      "examples": [["passwords hashed with bcrypt", "JWT tokens properly signed", "rate limiting on auth endpoints"]]
+    },
+    "safety_invariants": {
+      "type": "array",
+      "description": "Safety requirements that must not be violated",
+      "items": { "type": "string" },
+      "examples": [["no secrets in code", "input validation on all endpoints", "HTTPS-only cookies"]]
+    },
+    "sme_reviews": {
+      "type": "object",
+      "description": "SME agent reviews from Phase 2.5 quality gate",
+      "properties": {
+        "security": {
+          "type": "object",
+          "description": "Security SME review results",
+          "properties": {
+            "executed": { "type": "boolean" },
+            "findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "severity": { "type": "string", "enum": ["Critical", "High", "Medium", "Low", "Info"] },
+                  "category": { "type": "string" },
+                  "finding": { "type": "string" },
+                  "recommendation": { "type": "string" }
+                }
+              }
+            },
+            "overall_risk": { "type": "string", "enum": ["Low", "Medium", "High", "Critical"] },
+            "recommendation": { "type": "string", "enum": ["Approve", "Approve with Caution", "Block until fixes applied"] }
+          }
+        },
+        "compliance": {
+          "type": "object",
+          "description": "Compliance SME review results (v1.3+)"
+        },
+        "code_quality": {
+          "type": "object",
+          "description": "Code Quality SME review results (v1.3+)"
+        },
+        "performance": {
+          "type": "object",
+          "description": "Performance SME review results (v1.3+)"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Execution metadata and telemetry",
+      "properties": {
+        "started_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Workflow start timestamp (ISO 8601)"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Workflow completion timestamp (ISO 8601)"
+        },
+        "phase_durations": {
+          "type": "object",
+          "description": "Duration of each phase in seconds",
+          "properties": {
+            "phase_0": { "type": "number" },
+            "phase_1": { "type": "number" },
+            "phase_2": { "type": "number" },
+            "phase_3": { "type": "number" },
+            "phase_4": { "type": "number" }
+          }
+        },
+        "total_tokens": {
+          "type": "integer",
+          "description": "Total tokens consumed across all phases",
+          "minimum": 0
+        },
+        "cost_usd": {
+          "type": "number",
+          "description": "Estimated cost in USD",
+          "minimum": 0.0
+        },
+        "models_used": {
+          "type": "object",
+          "description": "Models used per phase",
+          "properties": {
+            "phase_0": { "type": "string" },
+            "phase_1": { "type": "string" },
+            "phase_2": { "type": "string" },
+            "phase_3": { "type": "string" },
+            "phase_4": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "schemaVersion": "1.0.0",
+      "trace_id": "a1b2c3d4-e5f6-4789-0abc-def123456789",
+      "workflow_id": "/ori",
+      "phase": {
+        "current": 1,
+        "next": 2,
+        "completed": [0],
+        "remaining": [2, 3, 4]
+      },
+      "user_request": {
+        "original": "add JWT authentication to the Express API",
+        "parsed_intent": "implement authentication system",
+        "domain": "code",
+        "clarity_score": 0.85,
+        "risk_flags": ["security"]
+      },
+      "context": {
+        "research_strategy": {
+          "primary_questions": [
+            "What are OWASP best practices for JWT authentication?",
+            "How to securely store JWT secrets?",
+            "What are common JWT vulnerabilities?"
+          ],
+          "sources": ["OWASP documentation", "Express security guide", "jwt.io"],
+          "search_queries": ["JWT security best practices 2025", "Express JWT middleware"],
+          "validation_criteria": ["3+ authoritative sources", "OWASP compliance verified"],
+          "estimated_complexity": "medium"
+        }
+      },
+      "model_recommendations": {
+        "phase_1": "sonnet",
+        "phase_2": "sonnet",
+        "phase_3": "sonnet",
+        "phase_4": "haiku",
+        "rationale": "Security-critical implementation requires Sonnet for research and implementation, Haiku sufficient for docs"
+      },
+      "quality_metrics": {
+        "confidence": "high",
+        "sources_validated": 5,
+        "risk_level": "medium",
+        "complexity_score": 0.6
+      },
+      "constraints": ["use Express.js framework", "OWASP Top 10 compliance required"],
+      "acceptance_criteria": ["passwords hashed with bcrypt", "JWT tokens properly signed", "httpOnly cookies"],
+      "safety_invariants": ["no secrets in code", "input validation on all endpoints", "HTTPS-only cookies"],
+      "metadata": {
+        "started_at": "2025-11-08T14:00:00Z",
+        "phase_durations": {
+          "phase_0": 45
+        },
+        "total_tokens": 5000,
+        "cost_usd": 0.075,
+        "models_used": {
+          "phase_0": "claude-opus-4"
+        }
+      }
+    }
+  ]
+}

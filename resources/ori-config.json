@@ -1,0 +1,189 @@
+{
+  "$schema": "./schemas/ori-config-schema.json",
+  "version": "1.2.0",
+  "description": "Configuration for ORI (Optimize Research Implement) multi-agent workflow",
+
+  "auto_approve_low_risk": true,
+  "research_depth": "thorough",
+  "max_sources": 5,
+  "require_confirmation_for": ["breaking_changes", "external_api_calls"],
+
+  "model_selection": {
+    "always_use_opus_for_strategy": true,
+    "allow_dynamic_phase1": true,
+    "prefer_haiku_for_docs": true,
+    "min_complexity_for_opus": "high"
+  },
+
+  "sme_agents": {
+    "enabled": false,
+    "comment": "SME agents disabled by default for backward compatibility. Enable individually below.",
+
+    "security": {
+      "enabled": false,
+      "comment": "Security SME performs OWASP Top 10 compliance review",
+      "auto_invoke_on_keywords": ["auth", "crypto", "password", "token", "session", "jwt", "oauth"],
+      "auto_invoke_on_risk_flags": ["security"],
+      "block_on_critical": true,
+      "severity_threshold": "High"
+    },
+
+    "compliance": {
+      "enabled": false,
+      "comment": "Compliance SME checks license, privacy, accessibility (v1.3+)",
+      "auto_invoke_on_keywords": ["license", "gdpr", "ccpa", "pii", "privacy", "data"],
+      "auto_invoke_on_risk_flags": ["compliance", "privacy", "legal"],
+      "require_user_confirmation": true
+    },
+
+    "code_quality": {
+      "enabled": false,
+      "comment": "Code Quality SME reviews style, complexity, maintainability (v1.3+)",
+      "complexity_threshold": 10,
+      "auto_invoke_on_file_count": 3,
+      "auto_invoke_on_lines_changed": 200
+    },
+
+    "performance": {
+      "enabled": false,
+      "comment": "Performance SME reviews optimization opportunities (v1.3+)",
+      "auto_invoke_on_keywords": ["optimize", "performance", "slow", "scale", "latency"],
+      "auto_invoke_on_risk_flags": ["performance"]
+    }
+  },
+
+  "safety_hooks": {
+    "enabled": true,
+    "comment": "Safety hooks provide validation and logging at phase boundaries",
+
+    "pre_phase": {
+      "phase_1": ["validate_strategy"],
+      "phase_2": ["validate_research"],
+      "phase_3": ["safety_check", "sme_gate"],
+      "phase_4": ["validate_implementation"]
+    },
+
+    "post_phase": {
+      "phase_0": ["log_strategy"],
+      "phase_1": ["log_findings", "trigger_sme"],
+      "phase_2": ["log_verification"],
+      "phase_3": ["log_implementation"],
+      "phase_4": ["validate_docs"]
+    },
+
+    "emergency": {
+      "on_error": ["crash_dump", "attempt_rollback"],
+      "on_interrupt": ["save_checkpoint", "cleanup"]
+    }
+  },
+
+  "logging": {
+    "enabled": true,
+    "comment": "Logging tracks execution for debugging and auditability",
+    "log_directory": ".claude/ori-logs",
+    "retention_days": 30,
+    "log_handoff_packets": true,
+    "log_sme_reviews": true,
+    "log_phase_durations": true,
+    "trace_id_format": "uuid-v4"
+  },
+
+  "documentation_updates": {
+    "auto_update_readme": true,
+    "auto_update_changelog": true,
+    "auto_bump_version": false,
+    "comment": "Set auto_bump_version to 'patch', 'minor', or 'major' for automatic semantic versioning"
+  },
+
+  "error_handling": {
+    "max_retries": 2,
+    "rollback_on_failure": true,
+    "preserve_partial_results": true
+  },
+
+  "performance": {
+    "parallel_sme_execution": true,
+    "comment": "Run SME agents in parallel for 30-50% speed improvement",
+    "async_logging": true,
+    "timeout_minutes": {
+      "phase_0": 5,
+      "phase_1": 10,
+      "phase_2": 5,
+      "phase_3": 15,
+      "phase_4": 5
+    }
+  },
+
+  "tech_review": {
+    "enabled": true,
+    "comment": "Technology evaluation and ADR creation workflow",
+
+    "auto_trigger": {
+      "enabled": true,
+      "comment": "Automatically suggest tech review when technology decisions detected",
+
+      "on_file_changes": {
+        "enabled": true,
+        "watch_files": ["package.json", "requirements.txt", "go.mod", "Cargo.toml", "composer.json", "Gemfile"],
+        "on_new_dependency": "prompt"
+      },
+
+      "on_keywords": {
+        "enabled": true,
+        "confidence_threshold": 0.7,
+        "keywords": ["use", "integrate", "add", "adopt", "switch to", "migrate to"],
+        "require_file_change": false,
+        "prompt_user": true
+      },
+
+      "on_phase_0": {
+        "enabled": true,
+        "suggest_if_unfamiliar": true,
+        "comment": "ORI Phase 0 can recommend tech review for unfamiliar technologies"
+      }
+    },
+
+    "cache": {
+      "adr_ttl_days": 90,
+      "mcp_evaluation_ttl_days": 30,
+      "api_docs_ttl_days": 30,
+      "force_refresh_on_version_change": true
+    },
+
+    "mcp_discovery": {
+      "enabled": true,
+      "auto_search_registry": true,
+      "search_awesome_lists": true,
+      "present_top_n": 3,
+      "auto_install": false,
+      "comment": "Never auto-install; always prompt user"
+    },
+
+    "evaluation_criteria": {
+      "weights": {
+        "maintenance": 5,
+        "community": 5,
+        "security": 5,
+        "performance": 4,
+        "documentation": 4,
+        "license": 3,
+        "breaking_changes": 3,
+        "ecosystem": 3
+      },
+      "comment": "Total weight: 32, max score: 320 (10 × 32)"
+    },
+
+    "api_documentation": {
+      "auto_cache": true,
+      "sources": ["official_docs", "github_readme", "npm_docs"],
+      "max_cache_size_mb": 100
+    },
+
+    "storage": {
+      "adr_directory": "~/.claude/tech-decisions/adr",
+      "mcp_registry_directory": "~/.claude/tech-decisions/mcp-registry",
+      "api_docs_directory": "~/.claude/tech-decisions/api-docs",
+      "templates_directory": "~/.claude/tech-decisions/templates"
+    }
+  }
+}

@@ -1,0 +1,123 @@
+name: ORI Workflow Feedback
+description: Provide feedback on an ORI workflow execution
+title: "[Feedback] "
+labels: ["feedback", "workflow"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thank you for providing feedback!
+
+        Your feedback helps improve the ORI workflow for everyone.
+
+  - type: input
+    id: trace_id
+    attributes:
+      label: Trace ID
+      description: The UUID trace ID from your workflow execution (found in the workflow output)
+      placeholder: "e.g., 123e4567-e89b-12d3-a456-426614174000"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Workflow Outcome
+      description: How did the workflow perform?
+      options:
+        - "Successful - exceeded expectations"
+        - "Successful - met expectations"
+        - "Partially successful - some issues"
+        - "Failed - technical error"
+        - "Failed - incorrect result"
+        - "Aborted - stopped workflow early"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase Where Issue Occurred (if applicable)
+      description: Which phase had problems?
+      options:
+        - "N/A - No issues"
+        - "Phase 0 - Strategy"
+        - "Phase 1 - Research"
+        - "Phase 2 - Verification"
+        - "Phase 2.5 - SME Quality Gate"
+        - "Phase 3 - Implementation"
+        - "Phase 4 - Documentation"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: sme_enabled
+    attributes:
+      label: SME Agents Enabled
+      description: Which SME agents were active during this workflow?
+      options:
+        - label: "Security SME was enabled"
+        - label: "Compliance SME was enabled"
+        - label: "Code Quality SME was enabled"
+        - label: "Performance SME was enabled"
+        - label: "No SME agents were enabled"
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Detailed Feedback
+      description: |
+        Please provide detailed feedback about the workflow execution.
+
+        Consider including:
+        - What worked well?
+        - What could be improved?
+        - Were the results accurate?
+        - Was the duration acceptable?
+        - Any unexpected behavior?
+      placeholder: "Share your experience..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Artifacts Created
+      description: List of files that were created or modified (optional)
+      placeholder: |
+        - src/components/NewComponent.tsx
+        - docs/README.md
+        - tests/NewComponent.test.tsx
+    validations:
+      required: false
+
+  - type: input
+    id: duration
+    attributes:
+      label: Workflow Duration (minutes)
+      description: How long did the complete workflow take?
+      placeholder: "e.g., 5.5"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: would_use_again
+    attributes:
+      label: Would you use ORI again for a similar task?
+      options:
+        - "Yes, definitely"
+        - "Yes, probably"
+        - "Not sure"
+        - "Probably not"
+        - "Definitely not"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information you'd like to share (screenshots, logs, etc.)
+      placeholder: "Add any additional context here..."
+    validations:
+      required: false
